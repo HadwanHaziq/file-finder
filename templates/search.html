@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Reference{% endblock %}
+
+{% block head %}
+<style>
+  .btn-primary {
+    background-color: #0054a6;
+    border-color: #0054a6;
+  }
+  .btn-primary:hover {
+    background-color: #003d80;
+  }
+  .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+  .btn-danger,
+  .alert-danger {
+    background-color: #ed1c24;
+    border-color: #ed1c24;
+    color: white;
+  }
+  .text-primary {
+    color: #0054a6 !important;
+  }
+  h2 {
+      color: #000000;
+    }
+  .card-header {
+    background-color: #0054a6;
+    color: white;
+    font-weight: 500;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 h2 fw-bold">Search File by Reference Number</h2>
+
+<a href="{{ url_for('upload') }}" class="btn btn-secondary mb-3">⬅ Back to Upload Page</a>
+
+<form method="POST" class="mb-4">
+  <div class="row g-3 align-items-center">
+    <div class="col-md-9">
+      <input type="text" class="form-control" name="ref_no" placeholder="Enter NO RUJUKAN" required>
+    </div>
+    <div class="col-md-3 d-grid">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </div>
+</form>
+
+{% if result %}
+  {% if result == 'not_found' %}
+    <div class="alert alert-warning">No matching file found.</div>
+
+  {% elif result is string and result.startswith('error:') %}
+    <div class="alert alert-danger">{{ result }}</div>
+
+  {% elif result is mapping %}
+    <div class="card shadow-sm w-50">
+      <div class="card-header">Match Found</div>
+      <div class="card-body">
+        <table class="table table-bordered mb-0">
+          <tr>
+            <th class="bg-light">No. Rak</th>
+            <td>{{ result.rak }}</td>
+          </tr>
+          <tr>
+            <th class="bg-light">Title</th>
+            <td>{{ result.tajuk }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  {% elif result is iterable %}
+    <div class="card shadow-sm mt-4">
+      <div class="card-header">Matching Results</div>
+      <div class="card-body table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>No. Rujukan</th>
+              <th>No. Rak</th>
+              <th>Title</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in result %}
+            <tr>
+              <td>{{ row['NO RUJUKAN'] }}</td>
+              <td>{{ row.get('NO. RAK', '—') }}</td>
+              <td>{{ row.get('TAJUK FAIL', '—') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
